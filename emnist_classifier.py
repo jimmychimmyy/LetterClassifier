@@ -1,12 +1,8 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 from scipy import io as spio
-
 import numpy as np
 import tensorflow as tf
-
 tf.logging.set_verbosity(tf.logging.INFO)
 
 def cnn_model_fn(features, labels, mode):
@@ -165,6 +161,14 @@ def main(unused_argv):
 	eval_results = emnist_classifier.evaluate(input_fn=eval_input_fn)
 	print(eval_results)
 
+	export_dir = emnist_classifier.export_savedmodel(
+		export_dir_base='./models/',
+		serving_input_receiver_fn=serving_input_receiver_fn()
+	)
+
+def serving_input_receiver_fn():
+	inputs = {"x": tf.placeholder(shape=[None, 4], dtype=tf.float32)}
+	return tf.estimator.export.ServinginputReceiver(inputs, inputs)
 
 if __name__ == "__main__":
 	tf.app.run()
@@ -185,4 +189,3 @@ if __name__ == "__main__":
 # 4. pooling layer 2
 # 5. dense layer 1
 # 6. dense layer 2 (output)
-
